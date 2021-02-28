@@ -22,5 +22,6 @@ extension LocalFeedImageEntity {
     @NSManaged public var location: String?
     @NSManaged public var url: URL
 	@NSManaged public var timestamp: Date
+	@NSManaged public var creationDate: Date
 
 }

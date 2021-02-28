@@ -40,6 +40,8 @@ final class CoreDataFeedStore: FeedStore {
 	func retrieve(completion: @escaping RetrievalCompletion) {
 		let context = persistentContainer.newBackgroundContext()
 		let request = NSFetchRequest<LocalFeedImageEntity>(entityName: "LocalFeedImageEntity")
+		let creationDateSortDescription = NSSortDescriptor(key: "creationDate", ascending: true)
+		request.sortDescriptors = [creationDateSortDescription]
 		do {
 			let entities = try context.fetch(request)
 			if entities.isEmpty {
@@ -63,6 +65,7 @@ final class CoreDataFeedStore: FeedStore {
 		entity.location = localFeedImage.location
 		entity.url = localFeedImage.url
 		entity.timestamp = timestamp
+		entity.creationDate = Date()
 		return entity
 	}
 	
