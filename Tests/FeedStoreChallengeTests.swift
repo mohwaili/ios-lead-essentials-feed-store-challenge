@@ -25,12 +25,7 @@ final class CoreDataFeedStore: FeedStore {
 			guard let self = self else { return }
 			let context = self.persistentContainer.viewContext
 			for item in feed {
-				let entity = LocalFeedImageEntity(context: context)
-				entity.id = item.id
-				entity.desc = item.description
-				entity.location = item.location
-				entity.url = item.url
-				entity.timestamp = timestamp
+				let entity = self.entity(from: item, and: timestamp)
 				context.insert(entity)
 			}
 			do {
@@ -57,6 +52,18 @@ final class CoreDataFeedStore: FeedStore {
 			completion(.failure(error))
 		}
 		
+	}
+	
+	// MARK: - Private
+	
+	private func entity(from localFeedImage: LocalFeedImage, and timestamp: Date) -> LocalFeedImageEntity {
+		let entity = LocalFeedImageEntity(context: persistentContainer.viewContext)
+		entity.id = localFeedImage.id
+		entity.desc = localFeedImage.description
+		entity.location = localFeedImage.location
+		entity.url = localFeedImage.url
+		entity.timestamp = timestamp
+		return entity
 	}
 	
 }
