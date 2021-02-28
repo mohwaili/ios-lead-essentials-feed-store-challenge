@@ -9,7 +9,7 @@ import CoreData
 final class CoreDataFeedStore: FeedStore {
 	
 	private let persistentContainer: NSPersistentContainer
-	private let queue = DispatchQueue(label: "\(CoreDataFeedStore.self)Queue", qos: .userInitiated, attributes: .concurrent)
+	private let queue = DispatchQueue(label: "\(CoreDataFeedStore.self)Queue", qos: .userInitiated)
 	
 	init(persistentContainer: NSPersistentContainer) {
 		self.persistentContainer = persistentContainer
@@ -17,11 +17,28 @@ final class CoreDataFeedStore: FeedStore {
 	}
 	
 	func deleteCachedFeed(completion: @escaping DeletionCompletion) {
-		
+		queue.async { [weak self] in
+			guard let self = self else { return }
+			let context = self.persistentContainer.viewContext
+			let request = NSFetchRequest<LocalFeedImageEntity>(entityName: "LocalFeedImageEntity")
+			do {
+				let entities = try context.fetch(request)
+				for entity in entities {
+					context.delete(entity)
+				}
+				if context.hasChanges {
+					try context.save()
+				}
+				completion(nil)
+			} catch {
+				completion(error)
+			}
+		}
 	}
 	
 	func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
-		queue.async(flags: .barrier) { [weak self] in
+		deleteCachedFeed { _ in }
+		queue.async { [weak self] in
 			guard let self = self else { return }
 			let context = self.persistentContainer.viewContext
 			for item in feed {
@@ -29,7 +46,9 @@ final class CoreDataFeedStore: FeedStore {
 				context.insert(entity)
 			}
 			do {
-				try context.save()
+				if context.hasChanges {
+					try context.save()
+				}
 				completion(nil)
 			} catch {
 				completion(error)
@@ -135,9 +154,9 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 	}
 	
 	func test_insert_overridesPreviouslyInsertedCacheValues() throws {
-//		let sut = try makeSUT()
-//
-//		assertThatInsertOverridesPreviouslyInsertedCacheValues(on: sut)
+		let sut = try makeSUT()
+
+		assertThatInsertOverridesPreviouslyInsertedCacheValues(on: sut)
 	}
 	
 	func test_delete_deliversNoErrorOnEmptyCache() throws {
