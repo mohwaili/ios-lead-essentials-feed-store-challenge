@@ -27,9 +27,9 @@ class FeedStoreIntegrationTests: XCTestCase {
 	}
 	
 	func test_retrieve_deliversEmptyOnEmptyCache() throws {
-//		let sut = try makeSUT()
-//
-//		expect(sut, toRetrieve: .empty)
+		let sut = try makeSUT()
+
+		expect(sut, toRetrieve: .empty)
 	}
 	
 	func test_retrieve_deliversFeedInsertedOnAnotherInstance() throws {
@@ -72,15 +72,46 @@ class FeedStoreIntegrationTests: XCTestCase {
 	// - MARK: Helpers
 	
 	private func makeSUT() throws -> FeedStore {
-		fatalError("Must be implemented")
+		return CoreDataFeedStore(persistentContainer:
+			makeTestPersistentContainer())
 	}
 	
 	private func setupEmptyStoreState() throws {
-		
+		try removeTestStore()
 	}
 	
 	private func undoStoreSideEffects() throws {
-		
+		try removeTestStore()
+	}
+	
+	func removeTestStore() throws {
+		let fileManager = FileManager.default
+		guard fileManager.fileExists(atPath: testStoreURL.path) else {
+			return
+		}
+		try fileManager.removeItem(at: testStoreURL)
+	}
+	
+	private func cacheDirectory() -> URL {
+		FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
+	}
+	
+	private var testStoreURL: URL {
+		cacheDirectory().appendingPathComponent("\(String(describing: self)).store")
+	}
+	
+	private func makeTestPersistentContainer() -> NSPersistentContainer {
+		let modelPath = Bundle(for: LocalFeedImageEntity.self).path(forResource: "LocalFeedImageModel", ofType: "momd")
+		let modelURL = URL(fileURLWithPath: modelPath!)
+		let model = NSManagedObjectModel(contentsOf: modelURL)!
+
+		let persistentContainer = NSPersistentContainer(name: "LocalFeedImageModel", managedObjectModel: model)
+
+		let storeDescription = NSPersistentStoreDescription(url: testStoreURL)
+		persistentContainer.persistentStoreDescriptions = [storeDescription]
+		persistentContainer.loadPersistentStores(completionHandler: { _, _ in })
+
+		return persistentContainer
 	}
 	
 }
