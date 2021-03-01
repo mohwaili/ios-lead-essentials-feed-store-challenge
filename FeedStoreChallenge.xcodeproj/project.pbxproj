@@ -21,6 +21,7 @@
 		BDFE04FF25EBA247001EE408 /* LocalFeedImageModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = BDFE04FD25EBA247001EE408 /* LocalFeedImageModel.xcdatamodeld */; };
 		BDFE050625EBE8F5001EE408 /* LocalFeedImageEntity+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDFE050425EBE8F5001EE408 /* LocalFeedImageEntity+CoreDataClass.swift */; };
 		BDFE050725EBE8F5001EE408 /* LocalFeedImageEntity+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDFE050525EBE8F5001EE408 /* LocalFeedImageEntity+CoreDataProperties.swift */; };
+		BDFE051E25ED503F001EE408 /* CoreDataFeedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDFE051D25ED503F001EE408 /* CoreDataFeedStore.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,6 +52,7 @@
 		BDFE04FE25EBA247001EE408 /* LocalFeedImageModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = LocalFeedImageModel.xcdatamodel; sourceTree = "<group>"; };
 		BDFE050425EBE8F5001EE408 /* LocalFeedImageEntity+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LocalFeedImageEntity+CoreDataClass.swift"; sourceTree = "<group>"; };
 		BDFE050525EBE8F5001EE408 /* LocalFeedImageEntity+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LocalFeedImageEntity+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		BDFE051D25ED503F001EE408 /* CoreDataFeedStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataFeedStore.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -100,6 +102,7 @@
 				BDFE04FD25EBA247001EE408 /* LocalFeedImageModel.xcdatamodeld */,
 				08CE2BA52285BCB600183A1B /* FeedStore.swift */,
 				08CE2B8F2285BBD100183A1B /* Info.plist */,
+				BDFE051D25ED503F001EE408 /* CoreDataFeedStore.swift */,
 			);
 			path = FeedStoreChallenge;
 			sourceTree = "<group>";
@@ -238,6 +241,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BDFE051E25ED503F001EE408 /* CoreDataFeedStore.swift in Sources */,
 				BDFE04FF25EBA247001EE408 /* LocalFeedImageModel.xcdatamodeld in Sources */,
 				BDFE050725EBE8F5001EE408 /* LocalFeedImageEntity+CoreDataProperties.swift in Sources */,
 				08CE2BA62285BCB600183A1B /* FeedStore.swift in Sources */,
