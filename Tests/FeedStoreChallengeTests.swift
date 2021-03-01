@@ -108,7 +108,6 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 
 		let inMemoryStoreDescription = NSPersistentStoreDescription()
 		inMemoryStoreDescription.type = NSInMemoryStoreType
-		inMemoryStoreDescription.shouldAddStoreAsynchronously = false
 		persistentContainer.persistentStoreDescriptions = [inMemoryStoreDescription]
 		persistentContainer.loadPersistentStores(completionHandler: { _, _ in })
 
