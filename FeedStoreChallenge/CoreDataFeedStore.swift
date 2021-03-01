@@ -14,6 +14,8 @@ final public class CoreDataFeedStore: FeedStore {
 	private let persistentContainer: NSPersistentContainer
 	private let context: NSManagedObjectContext
 	
+	private let entityName: String = "LocalFeedImageEntity"
+	
 	public init(persistentContainer: NSPersistentContainer) {
 		self.persistentContainer = persistentContainer
 		self.persistentContainer.loadPersistentStores(completionHandler: { _,_ in })
@@ -23,7 +25,7 @@ final public class CoreDataFeedStore: FeedStore {
 	public func deleteCachedFeed(completion: @escaping DeletionCompletion) {
 		context.perform { [weak self] in
 			guard let self = self else { return }
-			let request = NSFetchRequest<LocalFeedImageEntity>(entityName: "LocalFeedImageEntity")
+			let request = NSFetchRequest<LocalFeedImageEntity>(entityName: self.entityName)
 			do {
 				let entities = try self.context.fetch(request)
 				for entity in entities {
@@ -61,7 +63,7 @@ final public class CoreDataFeedStore: FeedStore {
 	public func retrieve(completion: @escaping RetrievalCompletion) {
 		context.perform { [weak self] in
 			guard let self = self else { return }
-			let request = NSFetchRequest<LocalFeedImageEntity>(entityName: "LocalFeedImageEntity")
+			let request = NSFetchRequest<LocalFeedImageEntity>(entityName: self.entityName)
 			let creationDateSortDescriptor = NSSortDescriptor(key: "creationDate", ascending: true)
 			request.sortDescriptors = [creationDateSortDescriptor]
 			do {
