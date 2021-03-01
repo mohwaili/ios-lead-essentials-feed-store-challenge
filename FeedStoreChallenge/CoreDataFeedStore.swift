@@ -62,8 +62,8 @@ final public class CoreDataFeedStore: FeedStore {
 		context.perform { [weak self] in
 			guard let self = self else { return }
 			let request = NSFetchRequest<LocalFeedImageEntity>(entityName: "LocalFeedImageEntity")
-			let creationDateSortDescription = NSSortDescriptor(key: "creationDate", ascending: true)
-			request.sortDescriptors = [creationDateSortDescription]
+			let creationDateSortDescriptor = NSSortDescriptor(key: "creationDate", ascending: true)
+			request.sortDescriptors = [creationDateSortDescriptor]
 			do {
 				let entities = try self.context.fetch(request)
 				if entities.isEmpty {
