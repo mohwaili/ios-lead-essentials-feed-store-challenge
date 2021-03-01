@@ -77,8 +77,6 @@
 		08CE2B812285BBD100183A1B = {
 			isa = PBXGroup;
 			children = (
-				BDFE050425EBE8F5001EE408 /* LocalFeedImageEntity+CoreDataClass.swift */,
-				BDFE050525EBE8F5001EE408 /* LocalFeedImageEntity+CoreDataProperties.swift */,
 				08CE2B8D2285BBD100183A1B /* FeedStoreChallenge */,
 				08CE2B982285BBD100183A1B /* Tests */,
 				08CE2B8C2285BBD100183A1B /* Products */,
@@ -98,6 +96,8 @@
 		08CE2B8D2285BBD100183A1B /* FeedStoreChallenge */ = {
 			isa = PBXGroup;
 			children = (
+				BDFE050425EBE8F5001EE408 /* LocalFeedImageEntity+CoreDataClass.swift */,
+				BDFE050525EBE8F5001EE408 /* LocalFeedImageEntity+CoreDataProperties.swift */,
 				08CE2BA72285BCC600183A1B /* LocalFeedImage.swift */,
 				BDFE04FD25EBA247001EE408 /* LocalFeedImageModel.xcdatamodeld */,
 				08CE2BA52285BCB600183A1B /* FeedStore.swift */,
