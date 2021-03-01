@@ -9,25 +9,25 @@ import CoreData
 final class CoreDataFeedStore: FeedStore {
 	
 	private let persistentContainer: NSPersistentContainer
-	private let queue = DispatchQueue(label: "\(CoreDataFeedStore.self)Queue", qos: .userInitiated)
+	private let context: NSManagedObjectContext
 	
 	init(persistentContainer: NSPersistentContainer) {
 		self.persistentContainer = persistentContainer
 		self.persistentContainer.loadPersistentStores(completionHandler: { _,_ in })
+		self.context = self.persistentContainer.newBackgroundContext()
 	}
 	
 	func deleteCachedFeed(completion: @escaping DeletionCompletion) {
-		queue.async { [weak self] in
+		context.perform { [weak self] in
 			guard let self = self else { return }
-			let context = self.persistentContainer.viewContext
 			let request = NSFetchRequest<LocalFeedImageEntity>(entityName: "LocalFeedImageEntity")
 			do {
-				let entities = try context.fetch(request)
+				let entities = try self.context.fetch(request)
 				for entity in entities {
-					context.delete(entity)
+					self.context.delete(entity)
 				}
-				if context.hasChanges {
-					try context.save()
+				if self.context.hasChanges {
+					try self.context.save()
 				}
 				completion(nil)
 			} catch {
@@ -38,16 +38,15 @@ final class CoreDataFeedStore: FeedStore {
 	
 	func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
 		deleteCachedFeed { _ in }
-		queue.async { [weak self] in
+		context.perform { [weak self] in
 			guard let self = self else { return }
-			let context = self.persistentContainer.viewContext
 			for item in feed {
 				let entity = self.entity(from: item, and: timestamp)
-				context.insert(entity)
+				self.context.insert(entity)
 			}
 			do {
-				if context.hasChanges {
-					try context.save()
+				if self.context.hasChanges {
+					try self.context.save()
 				}
 				completion(nil)
 			} catch {
@@ -57,28 +56,29 @@ final class CoreDataFeedStore: FeedStore {
 	}
 	
 	func retrieve(completion: @escaping RetrievalCompletion) {
-		let context = persistentContainer.newBackgroundContext()
-		let request = NSFetchRequest<LocalFeedImageEntity>(entityName: "LocalFeedImageEntity")
-		let creationDateSortDescription = NSSortDescriptor(key: "creationDate", ascending: true)
-		request.sortDescriptors = [creationDateSortDescription]
-		do {
-			let entities = try context.fetch(request)
-			if entities.isEmpty {
-				completion(.empty)
-			} else {
-				let timestmap = entities.first?.timestamp ?? Date()
-				completion(.found(feed: entities.feed, timestamp: timestmap))
+		context.perform { [weak self] in
+			guard let self = self else { return }
+			let request = NSFetchRequest<LocalFeedImageEntity>(entityName: "LocalFeedImageEntity")
+			let creationDateSortDescription = NSSortDescriptor(key: "creationDate", ascending: true)
+			request.sortDescriptors = [creationDateSortDescription]
+			do {
+				let entities = try self.context.fetch(request)
+				if entities.isEmpty {
+					completion(.empty)
+				} else {
+					let timestmap = entities.first?.timestamp ?? Date()
+					completion(.found(feed: entities.feed, timestamp: timestmap))
+				}
+			} catch {
+				completion(.failure(error))
 			}
-		} catch {
-			completion(.failure(error))
 		}
-		
 	}
 	
 	// MARK: - Private
 	
 	private func entity(from localFeedImage: LocalFeedImage, and timestamp: Date) -> LocalFeedImageEntity {
-		let entity = LocalFeedImageEntity(context: persistentContainer.viewContext)
+		let entity = LocalFeedImageEntity(context: context)
 		entity.id = localFeedImage.id
 		entity.desc = localFeedImage.description
 		entity.location = localFeedImage.location
@@ -184,22 +184,23 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 	}
 	
 	func test_storeSideEffects_runSerially() throws {
-//		let sut = try makeSUT()
-//
-//		assertThatSideEffectsRunSerially(on: sut)
+		let sut = try makeSUT()
+
+		assertThatSideEffectsRunSerially(on: sut)
 	}
 	
 	// - MARK: Helpers
 	
 	private func makeSUT() throws -> FeedStore {
-		return CoreDataFeedStore(persistentContainer: makeTestPersistentContainer())
+		return CoreDataFeedStore(persistentContainer:
+			makeTestPersistentContainer())
 	}
 	
 	private func makeTestPersistentContainer() -> NSPersistentContainer {
 		let modelPath = Bundle(for: LocalFeedImageEntity.self).path(forResource: "LocalFeedImageModel", ofType: "momd")
 		let modelURL = URL(fileURLWithPath: modelPath!)
 		let model = NSManagedObjectModel(contentsOf: modelURL)!
-		
+
 		let persistentContainer = NSPersistentContainer(name: "LocalFeedImageModel", managedObjectModel: model)
 
 		let inMemoryStoreDescription = NSPersistentStoreDescription()
@@ -207,7 +208,7 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 		inMemoryStoreDescription.shouldAddStoreAsynchronously = false
 		persistentContainer.persistentStoreDescriptions = [inMemoryStoreDescription]
 		persistentContainer.loadPersistentStores(completionHandler: { _, _ in })
-		
+
 		return persistentContainer
 	}
 	
