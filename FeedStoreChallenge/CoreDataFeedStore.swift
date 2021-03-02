@@ -23,17 +23,15 @@ final public class CoreDataFeedStore: FeedStore {
 	}
 	
 	public func deleteCachedFeed(completion: @escaping DeletionCompletion) {
-		context.perform { [weak self] in
-			guard let self = self else { return }
-			let request = NSFetchRequest<LocalFeedImageEntity>(entityName: self.entityName)
+		let entityName = self.entityName
+		perform { context in
+			let request = NSFetchRequest<LocalFeedImageEntity>(entityName: entityName)
 			do {
-				let entities = try self.context.fetch(request)
+				let entities = try context.fetch(request)
 				for entity in entities {
-					self.context.delete(entity)
+					context.delete(entity)
 				}
-				if self.context.hasChanges {
-					try self.context.save()
-				}
+				try context.save()
 				completion(nil)
 			} catch {
 				completion(error)
@@ -43,31 +41,31 @@ final public class CoreDataFeedStore: FeedStore {
 	
 	public func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
 		deleteCachedFeed { _ in }
-		context.perform { [weak self] in
-			guard let self = self else { return }
-			for item in feed {
-				let entity = self.entity(from: item, and: timestamp)
-				self.context.insert(entity)
-			}
+		perform { context in
+			let entities = LocalFeedImageEntity.entities(from: feed,
+														 in: context,
+														 and: timestamp)
+			entities.forEach { context.insert($0) }
 			do {
-				if self.context.hasChanges {
-					try self.context.save()
+				if context.hasChanges {
+					try context.save()
 				}
 				completion(nil)
 			} catch {
 				completion(error)
 			}
 		}
+		
 	}
 	
 	public func retrieve(completion: @escaping RetrievalCompletion) {
-		context.perform { [weak self] in
-			guard let self = self else { return }
-			let request = NSFetchRequest<LocalFeedImageEntity>(entityName: self.entityName)
+		let entityName = self.entityName
+		perform { context in
+			let request = NSFetchRequest<LocalFeedImageEntity>(entityName: entityName)
 			let creationDateSortDescriptor = NSSortDescriptor(key: "creationDate", ascending: true)
 			request.sortDescriptors = [creationDateSortDescriptor]
 			do {
-				let entities = try self.context.fetch(request)
+				let entities = try context.fetch(request)
 				if entities.isEmpty {
 					completion(.empty)
 				} else {
@@ -82,15 +80,11 @@ final public class CoreDataFeedStore: FeedStore {
 	
 	// MARK: - Private
 	
-	private func entity(from localFeedImage: LocalFeedImage, and timestamp: Date) -> LocalFeedImageEntity {
-		let entity = LocalFeedImageEntity(context: context)
-		entity.id = localFeedImage.id
-		entity.desc = localFeedImage.description
-		entity.location = localFeedImage.location
-		entity.url = localFeedImage.url
-		entity.timestamp = timestamp
-		entity.creationDate = Date()
-		return entity
+	private func perform(block: @escaping (NSManagedObjectContext) -> Void) {
+		let context = self.context
+		context.perform {
+			block(context)
+		}
 	}
 	
 }
@@ -103,6 +97,23 @@ private extension Array where Element == LocalFeedImageEntity {
 						   description: entity.desc,
 						   location: entity.location,
 						   url: entity.url)
+		}
+	}
+	
+}
+
+private extension LocalFeedImageEntity {
+	
+	static func entities(from images: [LocalFeedImage], in context: NSManagedObjectContext, and timestamp: Date) -> [LocalFeedImageEntity] {
+		images.map { image -> LocalFeedImageEntity in
+			let entity = LocalFeedImageEntity(context: context)
+			entity.id = image.id
+			entity.desc = image.description
+			entity.location = image.location
+			entity.url = image.url
+			entity.timestamp = timestamp
+			entity.creationDate = Date()
+			return entity
 		}
 	}
 	
