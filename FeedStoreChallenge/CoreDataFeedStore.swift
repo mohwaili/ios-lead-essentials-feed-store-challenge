@@ -39,7 +39,6 @@ final public class CoreDataFeedStore: FeedStore {
 				let newCache = try CacheEntity.newInstance(in: context)
 				newCache.timestamp = timestamp
 				newCache.feed = NSOrderedSet(array: LocalFeedImageEntity.entities(from: feed, in: context))
-				context.insert(newCache)
 				try context.save()
 				completion(nil)
 			} catch {
