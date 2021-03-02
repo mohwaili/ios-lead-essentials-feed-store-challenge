@@ -84,7 +84,7 @@ class FeedStoreIntegrationTests: XCTestCase {
 		try removeTestStore()
 	}
 	
-	func removeTestStore() throws {
+	private func removeTestStore() throws {
 		try? FileManager.default.removeItem(at: testStoreURL)
 	}
 	
