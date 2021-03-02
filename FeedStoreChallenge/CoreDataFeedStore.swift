@@ -78,10 +78,7 @@ private extension Array where Element == LocalFeedImageEntity {
 	
 	var feed: [LocalFeedImage] {
 		self.map { entity in
-			LocalFeedImage(id: entity.id,
-						   description: entity.desc,
-						   location: entity.location,
-						   url: entity.url)
+			LocalFeedImage(id: entity.id, description: entity.desc, location: entity.location, url: entity.url)
 		}
 	}
 	
