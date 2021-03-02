@@ -37,24 +37,13 @@ final public class CoreDataFeedStore: FeedStore {
 	
 	public func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
 		perform { context in
-			let cacheFetchRequest = NSFetchRequest<CacheEntity>(entityName: "CacheEntity")
 			do {
-				let caches = try context.fetch(cacheFetchRequest)
-				for cache in caches {
-					context.delete(cache)
-				}
-			} catch {
-				completion(error)
-				return
-			}
-			
-			let newCache = CacheEntity(context: context)
-			newCache.timestamp = timestamp
-			let feedEntities = NSOrderedSet(array: LocalFeedImageEntity.entities(from: feed,
-																				 in: context,
-																				 and: timestamp))
-			newCache.feed = feedEntities
-			do {
+				let newCache = try CacheEntity.newInstance(in: context)
+				newCache.timestamp = timestamp
+				newCache.feed = NSOrderedSet(array: LocalFeedImageEntity.entities(from: feed,
+																				  in: context,
+																				  and: timestamp))
+				context.insert(newCache)
 				try context.save()
 				completion(nil)
 			} catch {
