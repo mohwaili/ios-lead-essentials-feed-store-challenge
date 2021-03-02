@@ -31,4 +31,9 @@ extension CacheEntity {
 		return CacheEntity(context: context)
 	}
 	
+	static func fetch(in context: NSManagedObjectContext) throws -> CacheEntity? {
+		let request = NSFetchRequest<CacheEntity>(entityName: "CacheEntity")
+		return try context.fetch(request).first
+	}
+	
 }
