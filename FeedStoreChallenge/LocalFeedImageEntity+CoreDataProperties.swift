@@ -12,7 +12,7 @@ import CoreData
 
 extension LocalFeedImageEntity {
 
-    @nonobjc public class func fetchRequest() -> NSFetchRequest<LocalFeedImageEntity> {
+    @nonobjc class func fetchRequest() -> NSFetchRequest<LocalFeedImageEntity> {
         return NSFetchRequest<LocalFeedImageEntity>(entityName: "LocalFeedImageEntity")
     }
 
