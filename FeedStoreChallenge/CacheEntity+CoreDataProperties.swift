@@ -24,7 +24,7 @@ extension CacheEntity {
 extension CacheEntity {
 
 	static func newInstance(in context: NSManagedObjectContext) throws -> CacheEntity {
-		let request = NSFetchRequest<CacheEntity>(entityName: "CacheEntity")
+		let request: NSFetchRequest<CacheEntity> = CacheEntity.fetchRequest()
 		if let cache = try context.fetch(request).first {
 			context.delete(cache)
 		}
@@ -32,7 +32,7 @@ extension CacheEntity {
 	}
 	
 	static func fetch(in context: NSManagedObjectContext) throws -> CacheEntity? {
-		let request = NSFetchRequest<CacheEntity>(entityName: "CacheEntity")
+		let request: NSFetchRequest<CacheEntity> = CacheEntity.fetchRequest()
 		return try context.fetch(request).first
 	}
 	
