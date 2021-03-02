@@ -14,21 +14,18 @@ final public class CoreDataFeedStore: FeedStore {
 	private let persistentContainer: NSPersistentContainer
 	private let context: NSManagedObjectContext
 	
-	private let entityName: String = "LocalFeedImageEntity"
-	
 	public init(storeURL: URL, bundle: Bundle = .main) throws {
 		self.persistentContainer = try NSPersistentContainer.load(modelName: "LocalFeedImageModel", url: storeURL, in: bundle)
 		self.context = self.persistentContainer.newBackgroundContext()
 	}
 	
 	public func deleteCachedFeed(completion: @escaping DeletionCompletion) {
-		let entityName = self.entityName
 		perform { context in
-			let request = NSFetchRequest<LocalFeedImageEntity>(entityName: entityName)
 			do {
-				let entities = try context.fetch(request)
-				for entity in entities {
-					context.delete(entity)
+				let request = NSFetchRequest<CacheEntity>(entityName: "CacheEntity")
+				let caches = try context.fetch(request)
+				for cache in caches {
+					context.delete(cache)
 				}
 				try context.save()
 				completion(nil)
@@ -39,16 +36,26 @@ final public class CoreDataFeedStore: FeedStore {
 	}
 	
 	public func insert(_ feed: [LocalFeedImage], timestamp: Date, completion: @escaping InsertionCompletion) {
-		deleteCachedFeed { _ in }
 		perform { context in
-			let entities = LocalFeedImageEntity.entities(from: feed,
-														 in: context,
-														 and: timestamp)
-			entities.forEach { context.insert($0) }
+			let cacheFetchRequest = NSFetchRequest<CacheEntity>(entityName: "CacheEntity")
 			do {
-				if context.hasChanges {
-					try context.save()
+				let caches = try context.fetch(cacheFetchRequest)
+				for cache in caches {
+					context.delete(cache)
 				}
+			} catch {
+				completion(error)
+				return
+			}
+			
+			let newCache = CacheEntity(context: context)
+			newCache.timestamp = timestamp
+			let feedEntities = NSOrderedSet(array: LocalFeedImageEntity.entities(from: feed,
+																				 in: context,
+																				 and: timestamp))
+			newCache.feed = feedEntities
+			do {
+				try context.save()
 				completion(nil)
 			} catch {
 				completion(error)
@@ -58,18 +65,17 @@ final public class CoreDataFeedStore: FeedStore {
 	}
 	
 	public func retrieve(completion: @escaping RetrievalCompletion) {
-		let entityName = self.entityName
 		perform { context in
-			let request = NSFetchRequest<LocalFeedImageEntity>(entityName: entityName)
-			let creationDateSortDescriptor = NSSortDescriptor(key: "creationDate", ascending: true)
-			request.sortDescriptors = [creationDateSortDescriptor]
+			let request = NSFetchRequest<CacheEntity>(entityName: "CacheEntity")
 			do {
-				let entities = try context.fetch(request)
-				if entities.isEmpty {
+				guard let cache = try context.fetch(request).first else {
+					return completion(.empty)
+				}
+				let feedEntities = cache.feed.compactMap { $0 as? LocalFeedImageEntity }
+				if feedEntities.isEmpty {
 					completion(.empty)
 				} else {
-					let timestmap = entities.first?.timestamp ?? Date()
-					completion(.found(feed: entities.feed, timestamp: timestmap))
+					completion(.found(feed: feedEntities.feed, timestamp: cache.timestamp))
 				}
 			} catch {
 				completion(.failure(error))
@@ -103,15 +109,15 @@ private extension Array where Element == LocalFeedImageEntity {
 
 private extension LocalFeedImageEntity {
 	
-	static func entities(from images: [LocalFeedImage], in context: NSManagedObjectContext, and timestamp: Date) -> [LocalFeedImageEntity] {
+	static func entities(from images: [LocalFeedImage],
+						 in context: NSManagedObjectContext,
+						 and timestamp: Date) -> [LocalFeedImageEntity] {
 		images.map { image -> LocalFeedImageEntity in
 			let entity = LocalFeedImageEntity(context: context)
 			entity.id = image.id
 			entity.desc = image.description
 			entity.location = image.location
 			entity.url = image.url
-			entity.timestamp = timestamp
-			entity.creationDate = Date()
 			return entity
 		}
 	}

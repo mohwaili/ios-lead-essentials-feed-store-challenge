@@ -1,5 +1,5 @@
 //
-//  LocalFeedImageEntity+CoreDataClass.swift
+//  CacheEntity+CoreDataClass.swift
 //  FeedStoreChallenge
 //
 //  Created by Mohammed Alwaili on 02/03/2021.
@@ -10,7 +10,7 @@
 import Foundation
 import CoreData
 
-@objc(LocalFeedImageEntity)
-class LocalFeedImageEntity: NSManagedObject {
+@objc(CacheEntity)
+class CacheEntity: NSManagedObject {
 
 }

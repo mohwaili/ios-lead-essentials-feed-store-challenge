@@ -85,11 +85,7 @@ class FeedStoreIntegrationTests: XCTestCase {
 	}
 	
 	func removeTestStore() throws {
-		let fileManager = FileManager.default
-		guard fileManager.fileExists(atPath: testStoreURL.path) else {
-			return
-		}
-		try fileManager.removeItem(at: testStoreURL)
+		try? FileManager.default.removeItem(at: testStoreURL)
 	}
 	
 	private func cacheDirectory() -> URL {

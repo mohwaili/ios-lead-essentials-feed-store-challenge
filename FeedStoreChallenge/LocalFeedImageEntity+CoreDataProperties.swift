@@ -2,7 +2,7 @@
 //  LocalFeedImageEntity+CoreDataProperties.swift
 //  FeedStoreChallenge
 //
-//  Created by Mohammed Al Waili on 28/02/2021.
+//  Created by Mohammed Alwaili on 02/03/2021.
 //  Copyright © 2021 Essential Developer. All rights reserved.
 //
 //
@@ -16,11 +16,14 @@ extension LocalFeedImageEntity {
         return NSFetchRequest<LocalFeedImageEntity>(entityName: "LocalFeedImageEntity")
     }
 
-    @NSManaged var id: UUID
     @NSManaged var desc: String?
+    @NSManaged var id: UUID
     @NSManaged var location: String?
     @NSManaged var url: URL
-	@NSManaged var timestamp: Date
-	@NSManaged var creationDate: Date
+    @NSManaged var cache: CacheEntity
+
+}
+
+extension LocalFeedImageEntity : Identifiable {
 
 }
