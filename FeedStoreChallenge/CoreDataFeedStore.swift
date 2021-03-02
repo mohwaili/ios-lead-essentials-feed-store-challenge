@@ -52,7 +52,7 @@ final public class CoreDataFeedStore: FeedStore {
 		perform { context in
 			do {
 				if let cache = try CacheEntity.fetch(in: context) {
-					completion(.found(feed: CacheEntity.localFeed(from: cache.feed), timestamp: cache.timestamp))
+					completion(.found(feed: cache.localFeed, timestamp: cache.timestamp))
 				} else {
 					completion(.empty)
 				}
@@ -100,8 +100,8 @@ private extension LocalFeedImageEntity {
 
 private extension CacheEntity {
 	
-	static func localFeed(from entities: NSOrderedSet) -> [LocalFeedImage] {
-		entities.compactMap { $0 as? LocalFeedImageEntity }.feed
+	var localFeed: [LocalFeedImage] {
+		feed.compactMap { $0 as? LocalFeedImageEntity }.feed
 	}
 	
 }
