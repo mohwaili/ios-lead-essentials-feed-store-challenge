@@ -38,9 +38,7 @@ final public class CoreDataFeedStore: FeedStore {
 			do {
 				let newCache = try CacheEntity.newInstance(in: context)
 				newCache.timestamp = timestamp
-				newCache.feed = NSOrderedSet(array: LocalFeedImageEntity.entities(from: feed,
-																				  in: context,
-																				  and: timestamp))
+				newCache.feed = NSOrderedSet(array: LocalFeedImageEntity.entities(from: feed, in: context))
 				context.insert(newCache)
 				try context.save()
 				completion(nil)
@@ -53,16 +51,11 @@ final public class CoreDataFeedStore: FeedStore {
 	
 	public func retrieve(completion: @escaping RetrievalCompletion) {
 		perform { context in
-			let request = NSFetchRequest<CacheEntity>(entityName: "CacheEntity")
 			do {
-				guard let cache = try context.fetch(request).first else {
-					return completion(.empty)
-				}
-				let feedEntities = cache.feed.compactMap { $0 as? LocalFeedImageEntity }
-				if feedEntities.isEmpty {
-					completion(.empty)
+				if let cache = try CacheEntity.fetch(in: context) {
+					completion(.found(feed: CacheEntity.localFeed(from: cache.feed), timestamp: cache.timestamp))
 				} else {
-					completion(.found(feed: feedEntities.feed, timestamp: cache.timestamp))
+					completion(.empty)
 				}
 			} catch {
 				completion(.failure(error))
@@ -96,9 +89,7 @@ private extension Array where Element == LocalFeedImageEntity {
 
 private extension LocalFeedImageEntity {
 	
-	static func entities(from images: [LocalFeedImage],
-						 in context: NSManagedObjectContext,
-						 and timestamp: Date) -> [LocalFeedImageEntity] {
+	static func entities(from images: [LocalFeedImage], in context: NSManagedObjectContext) -> [LocalFeedImageEntity] {
 		images.map { image -> LocalFeedImageEntity in
 			let entity = LocalFeedImageEntity(context: context)
 			entity.id = image.id
@@ -107,6 +98,14 @@ private extension LocalFeedImageEntity {
 			entity.url = image.url
 			return entity
 		}
+	}
+	
+}
+
+private extension CacheEntity {
+	
+	static func localFeed(from entities: NSOrderedSet) -> [LocalFeedImage] {
+		entities.compactMap { $0 as? LocalFeedImageEntity }.feed
 	}
 	
 }
