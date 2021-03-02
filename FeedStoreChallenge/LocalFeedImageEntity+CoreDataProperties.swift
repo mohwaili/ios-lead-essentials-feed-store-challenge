@@ -10,18 +10,17 @@
 import Foundation
 import CoreData
 
-
 extension LocalFeedImageEntity {
 
     @nonobjc public class func fetchRequest() -> NSFetchRequest<LocalFeedImageEntity> {
         return NSFetchRequest<LocalFeedImageEntity>(entityName: "LocalFeedImageEntity")
     }
 
-    @NSManaged public var id: UUID
-    @NSManaged public var desc: String?
-    @NSManaged public var location: String?
-    @NSManaged public var url: URL
-	@NSManaged public var timestamp: Date
-	@NSManaged public var creationDate: Date
+    @NSManaged var id: UUID
+    @NSManaged var desc: String?
+    @NSManaged var location: String?
+    @NSManaged var url: URL
+	@NSManaged var timestamp: Date
+	@NSManaged var creationDate: Date
 
 }

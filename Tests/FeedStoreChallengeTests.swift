@@ -100,7 +100,7 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 	}
 	
 	private func makeTestPersistentContainer() -> NSPersistentContainer {
-		let modelPath = Bundle(for: LocalFeedImageEntity.self).path(forResource: "LocalFeedImageModel", ofType: "momd")
+		let modelPath = Bundle(for: CoreDataFeedStore.self).path(forResource: "LocalFeedImageModel", ofType: "momd")
 		let modelURL = URL(fileURLWithPath: modelPath!)
 		let model = NSManagedObjectModel(contentsOf: modelURL)!
 

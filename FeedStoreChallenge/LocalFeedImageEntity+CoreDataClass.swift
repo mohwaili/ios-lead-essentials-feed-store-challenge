@@ -11,6 +11,6 @@ import Foundation
 import CoreData
 
 @objc(LocalFeedImageEntity)
-public class LocalFeedImageEntity: NSManagedObject {
+class LocalFeedImageEntity: NSManagedObject {
 
 }
