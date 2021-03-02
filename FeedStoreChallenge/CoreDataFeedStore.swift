@@ -23,8 +23,7 @@ final public class CoreDataFeedStore: FeedStore {
 		perform { context in
 			do {
 				let request = NSFetchRequest<CacheEntity>(entityName: "CacheEntity")
-				let caches = try context.fetch(request)
-				for cache in caches {
+				if let cache = try context.fetch(request).first {
 					context.delete(cache)
 				}
 				try context.save()
