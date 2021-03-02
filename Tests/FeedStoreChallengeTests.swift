@@ -95,23 +95,10 @@ class FeedStoreChallengeTests: XCTestCase, FeedStoreSpecs {
 	// - MARK: Helpers
 	
 	private func makeSUT() throws -> FeedStore {
-		return CoreDataFeedStore(persistentContainer:
-			makeTestPersistentContainer())
-	}
-	
-	private func makeTestPersistentContainer() -> NSPersistentContainer {
-		let modelPath = Bundle(for: CoreDataFeedStore.self).path(forResource: "LocalFeedImageModel", ofType: "momd")
-		let modelURL = URL(fileURLWithPath: modelPath!)
-		let model = NSManagedObjectModel(contentsOf: modelURL)!
-
-		let persistentContainer = NSPersistentContainer(name: "LocalFeedImageModel", managedObjectModel: model)
-
-		let inMemoryStoreDescription = NSPersistentStoreDescription()
-		inMemoryStoreDescription.type = NSInMemoryStoreType
-		persistentContainer.persistentStoreDescriptions = [inMemoryStoreDescription]
-		persistentContainer.loadPersistentStores(completionHandler: { _, _ in })
-
-		return persistentContainer
+		let url = URL(fileURLWithPath: "/dev/null")
+		let bundle = Bundle(for: CoreDataFeedStore.self)
+		let sut = try! CoreDataFeedStore(storeURL: url, bundle: bundle)
+		return sut
 	}
 	
 }

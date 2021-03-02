@@ -22,6 +22,11 @@ final public class CoreDataFeedStore: FeedStore {
 		self.context = self.persistentContainer.newBackgroundContext()
 	}
 	
+	public init(storeURL: URL, bundle: Bundle = .main) throws {
+		self.persistentContainer = try NSPersistentContainer.load(modelName: "LocalFeedImageModel", url: storeURL, in: bundle)
+		self.context = self.persistentContainer.newBackgroundContext()
+	}
+	
 	public func deleteCachedFeed(completion: @escaping DeletionCompletion) {
 		let entityName = self.entityName
 		perform { context in

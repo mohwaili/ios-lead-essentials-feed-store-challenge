@@ -72,8 +72,8 @@ class FeedStoreIntegrationTests: XCTestCase {
 	// - MARK: Helpers
 	
 	private func makeSUT() throws -> FeedStore {
-		return CoreDataFeedStore(persistentContainer:
-			makeTestPersistentContainer())
+		let bundle = Bundle(for: CoreDataFeedStore.self)
+		return try CoreDataFeedStore(storeURL: testStoreURL, bundle: bundle)
 	}
 	
 	private func setupEmptyStoreState() throws {
@@ -98,20 +98,6 @@ class FeedStoreIntegrationTests: XCTestCase {
 	
 	private var testStoreURL: URL {
 		cacheDirectory().appendingPathComponent("\(String(describing: self)).store")
-	}
-	
-	private func makeTestPersistentContainer() -> NSPersistentContainer {
-		let modelPath = Bundle(for: CoreDataFeedStore.self).path(forResource: "LocalFeedImageModel", ofType: "momd")
-		let modelURL = URL(fileURLWithPath: modelPath!)
-		let model = NSManagedObjectModel(contentsOf: modelURL)!
-
-		let persistentContainer = NSPersistentContainer(name: "LocalFeedImageModel", managedObjectModel: model)
-
-		let storeDescription = NSPersistentStoreDescription(url: testStoreURL)
-		persistentContainer.persistentStoreDescriptions = [storeDescription]
-		persistentContainer.loadPersistentStores(completionHandler: { _, _ in })
-
-		return persistentContainer
 	}
 	
 }
