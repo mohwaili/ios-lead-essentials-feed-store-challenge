@@ -24,8 +24,7 @@ extension CacheEntity {
 extension CacheEntity {
 
 	static func newInstance(in context: NSManagedObjectContext) throws -> CacheEntity {
-		let request: NSFetchRequest<CacheEntity> = CacheEntity.fetchRequest()
-		if let cache = try context.fetch(request).first {
+		if let cache = try fetch(in: context) {
 			context.delete(cache)
 		}
 		return CacheEntity(context: context)
