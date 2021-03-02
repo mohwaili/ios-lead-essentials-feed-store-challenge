@@ -27,7 +27,6 @@ extension CacheEntity {
 		let request = NSFetchRequest<CacheEntity>(entityName: "CacheEntity")
 		if let cache = try context.fetch(request).first {
 			context.delete(cache)
-			try context.save()
 		}
 		return CacheEntity(context: context)
 	}
