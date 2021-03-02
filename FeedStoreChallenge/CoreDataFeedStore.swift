@@ -16,12 +16,6 @@ final public class CoreDataFeedStore: FeedStore {
 	
 	private let entityName: String = "LocalFeedImageEntity"
 	
-	public init(persistentContainer: NSPersistentContainer) {
-		self.persistentContainer = persistentContainer
-		self.persistentContainer.loadPersistentStores(completionHandler: { _,_ in })
-		self.context = self.persistentContainer.newBackgroundContext()
-	}
-	
 	public init(storeURL: URL, bundle: Bundle = .main) throws {
 		self.persistentContainer = try NSPersistentContainer.load(modelName: "LocalFeedImageModel", url: storeURL, in: bundle)
 		self.context = self.persistentContainer.newBackgroundContext()
